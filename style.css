@@ -1,0 +1,86 @@
+body {
+    text-align: center;
+    background-color: #011F3F;
+    font-family: 'Press Start 2P', cursive, sans-serif;
+    margin: 0;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    color: #FEF9E7;
+}
+
+#level-title {
+    font-size: clamp(1.25rem, 8vw, 3rem);
+    margin: 20px;
+    max-width: 90vw;
+    color: #FEF9E7;
+    cursor: pointer;
+}
+
+.container {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(12px, 4vw, 25px);
+    width: min(90vw, 450px, calc(100vh - 180px));
+    margin: 20px auto;
+}
+
+.btn {
+    padding: 0;
+    width: 100%;
+    max-width: 200px;
+    aspect-ratio: 1;
+    justify-self: center;
+    box-sizing: border-box;
+    border: 10px solid black;
+    border-radius: 20%;
+    cursor: pointer;
+    appearance: none;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.btn:active {
+    transform: scale(0.95);
+}
+
+.btn:focus-visible,
+#level-title:focus-visible {
+    outline: 3px solid #FEF9E7;
+    outline-offset: 4px;
+}
+
+.green {
+    background-color: #00a86b;
+}
+
+.red {
+    background-color: #c0392b;
+}
+
+.yellow {
+    background-color: #f1c40f;
+}
+
+.blue {
+    background-color: #2980b9;
+}
+
+.pressed {
+    box-shadow: 0 0 20px white;
+    background-color: grey;
+}
+
+.game-over {
+    background-color: red;
+    opacity: 0.8;
+}
+
+@media (max-width: 500px) {
+    #level-title {
+        margin: 20px 10px;
+    }
+}
