@@ -3,6 +3,10 @@ let gamePattern = [];
 let userClickedPattern = [];
 let started = false;
 let level = 0;
+let acceptingInput = false;
+let nextSequenceTimeout;
+let inputUnlockTimeout;
+let sequenceTimeouts = [];
 
 // Play sound file from the local sounds/ folder
 function playSound(name) {
@@ -26,6 +30,9 @@ document.getElementById("level-title").addEventListener("click", () => {
 });
 
 function startGame() {
+    clearTimeout(nextSequenceTimeout);
+    clearTimeout(inputUnlockTimeout);
+    clearSequenceTimeouts();
     started = true;
     level = 0;
     gamePattern = [];
@@ -36,7 +43,7 @@ function startGame() {
 const buttons = document.querySelectorAll(".btn");
 buttons.forEach(btn => {
     btn.addEventListener("click", function() {
-        if (!started) return;
+        if (!started || !acceptingInput) return;
 
         const userChosenColour = this.getAttribute("id");
         userClickedPattern.push(userChosenColour);
@@ -51,8 +58,9 @@ buttons.forEach(btn => {
 function checkAnswer(currentLevel) {
     if (gamePattern[currentLevel] === userClickedPattern[currentLevel]) {
         if (userClickedPattern.length === gamePattern.length) {
-            setTimeout(() => {
-                nextSequence();
+            acceptingInput = false;
+            nextSequenceTimeout = setTimeout(() => {
+                if (started) nextSequence();
             }, 1000);
         }
     } else {
@@ -69,6 +77,8 @@ function checkAnswer(currentLevel) {
 }
 
 function nextSequence() {
+    clearSequenceTimeouts();
+    acceptingInput = false;
     userClickedPattern = [];
     level++;
     document.getElementById("level-title").innerText = "Level " + level;
@@ -77,16 +87,29 @@ function nextSequence() {
     const randomChosenColour = buttonColours[randomNumber];
     gamePattern.push(randomChosenColour);
 
-    // Flash animation & sound for sequence
-    const selectedBtn = document.getElementById(randomChosenColour);
-    if (selectedBtn) {
-        selectedBtn.style.opacity = "0.2";
-        setTimeout(() => {
-            selectedBtn.style.opacity = "1";
-        }, 100);
-    }
+    const sequenceStepDuration = 600;
+    gamePattern.forEach((colour, index) => {
+        const flashTimeout = setTimeout(() => {
+            const selectedBtn = document.getElementById(colour);
+            if (selectedBtn) {
+                selectedBtn.style.opacity = "0.2";
+                sequenceTimeouts.push(setTimeout(() => {
+                    selectedBtn.style.opacity = "1";
+                }, 250));
+            }
+            playSound(colour);
+        }, index * sequenceStepDuration);
+        sequenceTimeouts.push(flashTimeout);
+    });
 
-    playSound(randomChosenColour);
+    inputUnlockTimeout = setTimeout(() => {
+        if (started) acceptingInput = true;
+    }, gamePattern.length * sequenceStepDuration);
+}
+
+function clearSequenceTimeouts() {
+    sequenceTimeouts.forEach(timeout => clearTimeout(timeout));
+    sequenceTimeouts = [];
 }
 
 function animatePress(currentColor) {
@@ -100,7 +123,11 @@ function animatePress(currentColor) {
 }
 
 function startOver() {
+    clearTimeout(nextSequenceTimeout);
+    clearTimeout(inputUnlockTimeout);
+    clearSequenceTimeouts();
     level = 0;
     gamePattern = [];
     started = false;
+    acceptingInput = false;
 }
